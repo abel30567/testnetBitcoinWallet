@@ -10,7 +10,7 @@ I wanted to show others how they could use `bitcore-insight` to create Bitcoin t
 
 Start the app
 ```bash
-    git clone 
+    git clone https://github.com/abel30567/testnetBitcoinWallet.git
     cd testnetBitcoinWallet
     npm install
     node server.js
