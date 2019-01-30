@@ -1,6 +1,6 @@
 # Bitcoin Testnet Wallet
 
-<img src="./bitWallaScreen.png" />
+<img src="https://github.com/abel30567/testnetBitcoinWallet/blob/master/bitwallaScreen.png" />
 
 This is a Bitcoin testnet wallet I made using ReactJS, NodeJS, Express.js and bitcore-insight.
 
