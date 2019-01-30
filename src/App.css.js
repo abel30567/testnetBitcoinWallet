@@ -37,15 +37,15 @@ let addressCard = {
 }
 let txHistory = {
     float: 'right',
-    marginRight: '20px'
+    marginRight: '20px',
+    paddingRight: 0,
 }
 let qrStyle = {
     backgroundColor: 'white',
-    width: '145px',
-    height: '145px',
     padding: '7px',
-    marginLeft: '40px',
-    marginBottom: '5px'
+    // marginLeft: '40px',
+    marginBottom: '5px',
+    
 }
 let sendBTC = {
     paddingTop: 20,
@@ -53,7 +53,7 @@ let sendBTC = {
     width: '45%',
     position: 'fixed',
     left: '20px',
-    top: '375px',
+    top: '53%',
     borderRadius: 10,
     boxShadow: '0 0 8px #000',
     color: '#407cff',
@@ -119,6 +119,18 @@ let newKey = {
   fontSize: '17px',
   marginBottom: '20px'
 }
+let receiveBTC = {
+  textAlign: 'center',
+  border: '1px solid transparent',
+  width: '45%',
+  position: 'fixed',
+  left: '20px',
+  bottom: '448px',
+  borderRadius: 10,
+  boxShadow: '0 0 8px #000',
+  color: '#407cff',
+  backgroundColor: 'white'
+}
 export default { 
     wifInput, 
     input, 
@@ -132,5 +144,6 @@ export default {
     nonSelectBtn,
     buttonContainer,
     sendBtn,
-    newKey
+    newKey,
+    receiveBTC
 };

@@ -3,12 +3,15 @@ import axios from 'axios';
 import Radium from 'radium'; // lets us use :focus :active as inline
 import QRCode from 'qrcode.react';
 import Transaction from './components/Transaction';
+import bitcore from 'bitcore-lib';
+import bitcoreIn from 'bitcore-insight';
 
 import './_app.css'
 import styles from './App.css.js';
 
 
-
+const Insight = bitcoreIn.Insight;
+let insight = new Insight('testnet');
 
 class App extends Component {
   constructor(props) {
@@ -34,8 +37,11 @@ class App extends Component {
     this.newAddress = this.newAddress.bind(this);
   }
   componentDidMount() { 
-   // cW71rTqCqWoUcFcCuETwniDsiqf1Ecx1x3Qc6QnGPV5Z5mPcPka3
-  //  console.log('hi')
+    // Testnet
+    // WIF1: cW71rTqCqWoUcFcCuETwniDsiqf1Ecx1x3Qc6QnGPV5Z5mPcPka3
+    // WIF2: cQGxd6mTehTjdMibY2M988FpCb3MF2aMCXcor7omkTbZfufHphcQ
+    // Add2: mu4y79Fm1gqUjWQpBUoNxPmP7hd4RcfRGN
+    // Add1: moCEHE5fJgb6yHtF9eLNnS52UQVUkHjnNm
   }
   getAddressT(e) {
     let wif = e.target.value;
@@ -46,7 +52,7 @@ class App extends Component {
       this.setState({
         _wif: wif,
         address: res.data[0].address,
-        balance: res.data[0].amount,
+        // balance: res.data[0].amount,
         qr: <QRCode value={res.data[0].address} />
       }, () => {
         this.getTransactions(this.state.address);
@@ -62,15 +68,14 @@ class App extends Component {
       console.log(res);
       this.setState({
         _wif: res.data.wif,
-        address: res.data.address.hash,
         balance: res.data.amount,
-        qr: <QRCode value={res.data.address.hash} />,
+        address: res.data.address,
+        qr: <QRCode value={res.data.address} />,
         showInput: 'none',
         showResult: 'block'
       }, () => {
-        // console.log(this.state);
-        // this.getTransactions(this.state.address);
-      })
+        alert(`Please store your private key: ${this.state._wif}`);
+      });
     })
     .catch((err) => {
       console.log(err);
@@ -92,14 +97,15 @@ class App extends Component {
   getTransactions(address) {
     axios.get(`http://localhost:8080/address/${address}`, { crossdomain: true })
     .then((res) => {
-      // console.log(res);
+      console.log(res);
       this.setState({
         network: res.data.address.address.network,
         transactions: res.data.address.transactionIds,
         showInput: 'none',
-        showResult: 'block'
+        showResult: 'block',
+        balance: Number(res.data.address.balance) / 100000000,
       }, () => {
-        // console.log(this.state.transactions, 'transact')
+        console.log(this.state.balance, 'balance')
       });
     })
     .catch((err) => {
@@ -157,37 +163,27 @@ class App extends Component {
       alert('Please fill in the right details to send a transaction')
     }
   }
-
-  // send to "2MvzBdxxtdUYXxZhCU7JLGzr4YF6RcT9N4s"
   render() {
     // add states to styles
     let wifStyle = Object.assign({ display: this.state.showInput }, styles.wifInput);
     let addrStyle = Object.assign({ display: this.state.showResult}, styles.addressCard);
     let txHistStyle = Object.assign({ display: this.state.showResult}, styles.txHistory);
     let sendBitStyle = Object.assign({ display: this.state.showResult}, styles.sendBTC);
-    
-    // map multiple transactions
+    let receiveBitStyle = Object.assign({ display: this.state.showResult}, styles.receiveBTC);
     
     return (
       <div className="App">
-        <div style={wifStyle} className="col-xs-12">
+        <div style={wifStyle} className="col-sm-12 col-xs-6">
             <h1>Enter Private Key</h1>
             <input key="inputWif" style={styles.input} onChange={this.getAddressT} />
             <h3>Or</h3>
             <a style={styles.newKey} onClick={this.newAddress} key="create" className="btn">Create One</a>
           </div>
-        <div style={addrStyle} className="col-sm-6">
+        <div style={addrStyle} className="col-sm-6 col-xs-12">
           <div className="col-xs-12">
-            <div className="col-xs-6">
-            <h3>Address</h3>
-            <div style={styles.qrStyle}>
-              {this.state.qr}
-            </div>
-            <p>{this.state.address}</p>
-            </div>
-            <div className="col-xs-6">
+            <div className="col-xs-12">
             <h3>Balance</h3>
-            <h1>{this.state.balance} BTC</h1>
+            <h1><span><i className="fa fa-btc"></i> {this.state.balance}</span></h1>
             </div>
             <div className="col-xs-12">
             <h3>Network</h3>
@@ -195,9 +191,10 @@ class App extends Component {
             </div>
           </div>
         </div>
-        <div style={txHistStyle} className="col-sm-6">
-          <h3 style={{ color: 'white'}}>Transactions</h3>
-          {this.state.transactions.map((tx, index) => 
+        <div style={txHistStyle} className="col-sm-6 col-xs-12">
+          <h3 style={{ color: '#32325d'}}>Transactions</h3>
+          { // Map multiple transactions and update new ones
+            this.state.transactions.map((tx, index) => 
             (<Transaction key={tx} address={this.state.address} transaction={tx} />)
           )}
         </div>
@@ -232,8 +229,20 @@ class App extends Component {
             </div>
           </div>
           <div className="col-xs-12">
+            <small>Economic fee: 0.0001 Bitcoin</small>
+            <br />
+            <small>Fast fee: 0.0005 Bitcoin</small>
             <a style={styles.sendBtn} key="send" onClick={this.sendTx} className="btn">Send</a>
           </div>
+        </div>
+        <div style={receiveBitStyle} className="col-sm-6">
+          <div className="col-xs-12">
+            <h3>Address</h3>
+            <div style={styles.qrStyle}>
+              {this.state.qr}
+            </div>
+            <p>{this.state.address}</p>
+            </div>
         </div>
       </div>
     );
